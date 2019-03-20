@@ -4,14 +4,14 @@ A collection of components for rendering data series to SVG and canvas, includin
 
 <table>
 <tr>
-  <td><a href="#boxplot"><img src="screenshots/boxplot.png"/></a></td>
-  <td><a href="#candlestick"><img src="screenshots/candlestick.png"/></a></td>
-  <td><a href="#line"><img src="screenshots/line.png"/></a></td>
+  <td><a href="#boxplot"><img src="/screenshots/boxplot.png"/></a></td>
+  <td><a href="#candlestick"><img src="/screenshots/candlestick.png"/></a></td>
+  <td><a href="#line"><img src="/screenshots/line.png"/></a></td>
 </tr>
 <tr>
-  <td><a href="#ohlc"><img src="screenshots/ohlc.png"/></a></td>
-  <td><a href="#area"><img src="screenshots/area.png"/></a></td>
-  <td><a href="#point"><img src="screenshots/point.png"/></a></td>
+  <td><a href="#ohlc"><img src="/packages/d3fc-series/screenshots/ohlc.png"/></a></td>
+  <td><a href="#area"><img src="/packages/d3fc-series/screenshots/area.png"/></a></td>
+  <td><a href="#point"><img src="/packages/d3fc-series/screenshots/point.png"/></a></td>
 </tr>
 <tr>
   <td><a href="#bar"><img src="screenshots/bar.png"/></a></td>
