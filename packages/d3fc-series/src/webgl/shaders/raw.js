@@ -33,8 +33,8 @@ const fsSource = `
 export default (gl) => {
     const base = baseShader(gl, vsSource, fsSource);
 
-    const draw = (positions, color, mode = gl.TRIANGLES) => {
-        base(positions, color, mode);
+    const draw = (positions, color, mode = gl.TRIANGLES, offset = 0, count = -1) => {
+        base(positions, color, mode, offset, count);
     };
 
     rebindAll(draw, base);

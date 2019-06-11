@@ -258,12 +258,12 @@ const restart = asWebGL => {
     const reset = () => {
         usingWebGL = asWebGL;
         generateData();
+        d3.select('#content').html('');
         chart = createChart(asWebGL);
     };
 
     if (running) {
         stop().then(() => {
-            d3.select('#content').html('');
             reset();
             start();
         });

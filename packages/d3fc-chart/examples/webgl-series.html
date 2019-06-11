@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="../node_modules/babel-polyfill/dist/polyfill.js"></script>
+  <script src="../node_modules/d3/build/d3.js"></script>
+  <script src="../../d3fc-data-join/build/d3fc-data-join.js"></script>
+  <script src="../../d3fc-rebind/build/d3fc-rebind.js"></script>
+  <script src="../../d3fc-axis/build/d3fc-axis.js"></script>
+  <script src="../../d3fc-extent/build/d3fc-extent.js"></script>
+  <script src="../../d3fc-element/build/d3fc-element.js"></script>
+  <script src="../../d3fc-series/build/d3fc-series.js"></script>
+  <script src="../../d3fc-annotation/build/d3fc-annotation.js"></script>
+  <script src="../build/d3fc-chart.js"></script>
+
+  <style>
+    html, body, #content {
+      height: 100%;
+      margin: 0;
+    }
+    #type {
+      position: absolute;
+      bottom: 5px;
+      left: 20px;
+
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #type li {
+      display: inline-block;
+      margin-right: 20px;
+    }
+    #fpsContainer {
+      position: absolute;
+      bottom: 5px;;
+      right: 20px;
+    }
+    #slider {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 50%;
+      height: 40px;
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="content"></div>
+  <ul id="type">
+    <li><input type="checkbox" name="seriesType" id="seriesCanvas" /><label for="seriesCanvas">Canvas</label></li>
+    <li><input type="radio" name="shapes" id="shapesLine" checked /><label for="shapesLine">Lines</label></li>
+    <li id="borderOption" style="visibility: hidden;"><input type="checkbox" name="borderStyle" id="withBorders" /><label for="withBorders">With Borders</label></li>
+  </ul>
+  <svg id="slider"></svg>
+  <div id="fpsContainer">
+    <span id="fps"></span>
+    <input type="checkbox" name="showFPS" id="showFPS" /><label for="showFPS">Show FPS</label>
+  </div>
+  <script src="slider.js"></script>
+  <script src="webgl-series.js"></script>
+</body>
+</html>

@@ -1,9 +1,9 @@
-import triangles from '../shaders/triangles';
+import raw from '../shaders/raw';
 import circles from '../shaders/circles';
 import pointTextures from '../shaders/pointTextures';
 
 const drawFunctions = {
-    triangles,
+    raw,
     circles,
     pointTextures
 };

@@ -122,7 +122,7 @@ Because D3 data-joins and data-binding only work on HTML / SVG, the canvas compo
 
 #### WebGL rendering
 
-The `seriesWebGLPoint` component has an API that is almost identical to its SVG/Canvas counterparts, `seriesSvgPoint`, like the canvas version, it has a `context` property, which is set to the "web-gl" context of the canvas that this series renders to.
+The `seriesWebGLLine` component has an API that is almost identical to its SVG/Canvas counterparts, `seriesSvgLine`. Like the canvas version, it has a `context` property, which is set to the "web-gl" context of the canvas that this series renders to.
 
 ```javascript
 const data = [
@@ -133,14 +133,14 @@ const data = [
 
 var ctx = canvas.getContext('web-gl');
 
-const point = fc.seriesWebglPoint()
+const line = fc.seriesWebglLine()
     .crossValue(d => d.x)
     .mainValue(d => d.y)
     .xScale(xScale)
     .yScale(yScale)
     .context(ctx);
 
-point(data);
+line(data);
 ```
 
 Like the canvas version, WebGL components are invoked directly with the supplied data. This causes the component to render itself to the canvas.
@@ -391,8 +391,9 @@ var canvasMulti = fc.seriesCanvasMulti()
 
 <a name="seriesSvgLine" href="#seriesSvgLine">#</a> fc.**seriesSvgLine**()  
 <a name="seriesCanvasLine" href="#seriesCanvasLine">#</a> fc.**seriesCanvasLine**()
+<a name="seriesWebglLine" href="#seriesWebglLine">#</a> fc.**seriesWebglLine**()
 
-Constructs a new line renderer for either canvas or SVG.
+Constructs a new line renderer for either canvas, SVG or WebGL.
 
 #### Common properties
 
@@ -416,11 +417,11 @@ If *curve* is specified, sets the curve factory and returns this series. If *cur
 
 This property is rebound from [line.curve](https://github.com/d3/d3-shape#line_curve).
 
-#### Canvas specific properties
+#### Canvas and WebGL specific properties
 
 <a name="seriesCanvasLine_context" href="#seriesCanvasLine_context">#</a> *seriesCanvasLine*.**context**(*ctx*)
 
-If *ctx* is specified, sets the canvas context and returns this series. If *ctx* is not specified, returns the current context.
+If *ctx* is specified, sets the canvas context and returns this series. If *ctx* is not specified, returns the current context. For WebGL this should be the "webgl" context from the canvas element. Otherwise it should be "2d".
 
 ### Point
 

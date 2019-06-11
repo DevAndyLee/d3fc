@@ -16,14 +16,16 @@ export default (gl, vsSource, fsSource) => {
     const scaleLocation = gl.getUniformLocation(shaderProgram, 'uScale');
     const seriesColorLocation = gl.getUniformLocation(shaderProgram, 'uSeriesColor');
 
-    const draw = (positions, color, mode = gl.TRIANGLES) => {
+    const draw = (positions, color, mode = gl.TRIANGLES, offset = 0, count = -1) => {
         const fColor = color || [0.0, 0.0, 0.0, 0.0];
         if (fColor.some((c, i) => c !== lastColor[i])) {
             setColor(fColor);
         }
 
         positionBuffer(positions);
-        drawBuffers(positions.length / numComponents, mode);
+
+        const vertexCount = count !== -1 ? count : positions.length / numComponents - offset;
+        gl.drawArrays(mode, offset, vertexCount);
     };
 
     draw.activate = () => {
@@ -78,13 +80,6 @@ export default (gl, vsSource, fsSource) => {
         gl.uniform4fv(
             seriesColorLocation,
             color);
-    }
-
-    function drawBuffers(vertexCount, mode) {
-        {
-            const offset = 0;
-            gl.drawArrays(mode, offset, vertexCount);
-        }
     }
 
     return draw;
