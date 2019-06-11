@@ -1,7 +1,6 @@
 import { symbol, symbolCircle } from 'd3-shape';
 import { rebindAll, exclude } from '@d3fc/d3fc-rebind';
 import xyBase from '../xyBase';
-import colors from '../colors';
 
 import helper from './helper/api';
 import glColor from './helper/glColor';
@@ -38,6 +37,40 @@ export default () => {
             imagePromise.then(image => {
                 glAPI.pointTextures(projectedData, image, fillColor, lineWidth, strokeColor);
             });
+        }
+
+        const tw = 5;
+        const th = 50;
+        const triangles = [
+            50, 20, 50 - tw, 20, 50 - tw, 20 + th,
+            50, 20, 50 - tw, 20 + th, 50 + tw, 20 + th,
+            50, 20, 50 + tw, 20 + th, 50 + tw, 20
+        ];
+        if (lineWidth > 0) {
+            const dx = tw / scales.pixel.x;
+            const dy = th / scales.pixel.y;
+            const d1 = Math.sqrt(dx * dx);
+            const d2 = Math.sqrt(dx * dx + dy * dy);
+
+            const diff = Math.sqrt(d1 > d2 ? d1 / d2 : d2 / d1);
+
+            let r1 = (d1 - lineWidth * diff);
+            let r2 = (d2 - lineWidth * diff);
+
+            let rt = d2 - lineWidth;
+
+            const edges = [
+                0, (r1  + r2) / 2, d1, r1, d2, r2,
+                0, rt, d2, rt, d2, rt,
+                0, (r1  + r2) / 2, d2, r2, d1, r1
+            ];
+
+            glAPI.edges(
+                triangles,
+                edges,
+                fillColor, [1.0, 0.0, 0.0, 1.0]);
+        } else {
+            glAPI.triangles(triangles, fillColor);
         }
     };
 
