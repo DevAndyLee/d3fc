@@ -509,8 +509,9 @@ If *ctx* is specified, sets the canvas context and returns this series. If *ctx*
 
 <a name="seriesSvgBar" href="#seriesSvgBar">#</a> fc.**seriesSvgBar**()  
 <a name="seriesCanvasBar" href="#seriesCanvasBar">#</a> fc.**seriesCanvasBar**()
+<a name="seriesWebglBar" href="#seriesWebglBar">#</a> fc.**seriesWebglBar**()
 
-Constructs a new bar series renderer for either canvas or SVG.
+Constructs a new bar series renderer for either canvas, SVG or WebGL.
 
 #### Common properties
 
@@ -533,12 +534,11 @@ If *scale* is specified, sets the scale and returns this series. If *scale* is n
 
 If *bandwidthFunc* is specified, sets the bandwidth function and returns this series. If *bandwidthFunc* is not specified, returns the current bandwidth function.
 
-#### Canvas specific properties
+#### Canvas and WebGL specific properties
 
 <a name="seriesCanvasArea_context" href="#seriesCanvasArea_context">#</a> *seriesCanvasArea*.**context**(*ctx*)
 
-If *ctx* is specified, sets the canvas context and returns this series. If *ctx* is not specified, returns the current context.
-
+If *ctx* is specified, sets the canvas context and returns this series. If *ctx* is not specified, returns the current context. For WebGL this should be the "webgl" context from the canvas element. Otherwise it should be "2d".
 
 ### Candlestick
 
