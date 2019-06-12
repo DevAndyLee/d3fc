@@ -1,18 +1,16 @@
 import { rebindAll, exclude } from '@d3fc/d3fc-rebind';
 
-import xyBase from '../xyBase';
+import glBase from './glBase';
 import colors from '../colors';
-import helper from './helper/api';
 import glColor from './helper/glColor';
 
 export default () => {
-    let context = null;
-    const base = xyBase();
-    let glAPI = null;
+    const base = glBase();
 
     const line = (data, helperAPI) => {
-        base();
-        glAPI = helperAPI || helper(context);
+        base(data, helperAPI);
+        const context = base.context();
+        const glAPI = base.glAPI();
 
         const scales = glAPI.applyScales(base.xScale(), base.yScale());
 
@@ -24,25 +22,31 @@ export default () => {
         const lineWidth = parseInt(context.lineWidth);
         const strokeColor = glColor(context.strokeStyle);
 
-        const projectedData = (data.constructor === Float32Array)
-                ? data : getProjectedData(data, scales);
-        const batches = getBatches(data);
+        const projected = (data.constructor === Float32Array)
+                ? rawFloat32Data(data) : getProjectedData(data, scales);
 
         if (lineWidth < 1.1) {
             // Draw straight to WebGL as line strips
-            batches.forEach(batch => {
-                glAPI.raw(projectedData, strokeColor, context.LINE_STRIP, batch.offset, batch.count);
+            projected.batches.forEach(batch => {
+                glAPI.raw(projected.points, strokeColor, context.LINE_STRIP, batch.offset, batch.count);
             });
         } else {
             // Convert to a triangle strip
-            batches.forEach(batch => {
-                const projectedTriangles = getProjectedTriangles(projectedData, batch.offset, batch.count, scales, lineWidth);
+            projected.batches.forEach(batch => {
+                const projectedTriangles = getProjectedTriangles(projected.points, batch.offset, batch.count, scales, lineWidth);
                 glAPI.raw(projectedTriangles, strokeColor, context.TRIANGLE_STRIP);
             });
         }
     };
 
-    const getBatches = (data) => {
+    const rawFloat32Data = data => {
+        return {
+            points: data,
+            batches: [{ offset: 0, count: data.length / 2 }]
+        };
+    };
+
+    const getBatches = data => {
         if (data.constructor === Float32Array) {
             return [{ offset: 0, count: data.length / 2 }];
         }
@@ -69,6 +73,11 @@ export default () => {
     };
 
     const getProjectedData = (data, scales) => {
+        const cachedProjected = base.cached();
+        if (cachedProjected) {
+            return cachedProjected;
+        }
+
         const crossFn = base.crossValue();
         const mainFn = base.mainValue();
         const vertical = base.orient() === 'vertical';
@@ -88,7 +97,11 @@ export default () => {
             });
         }
 
-        return points;
+        const batches = getBatches(data);
+
+        const projected = {points, batches};
+        base.cached(projected);
+        return projected;
     };
 
     const getProjectedTriangles = (points, offset, count, scales, lineWidth) => {
@@ -149,14 +162,6 @@ export default () => {
         return [miter[0] * length, miter[1] * length];
     };
 
-    line.context = (...args) => {
-        if (!args.length) {
-            return context;
-        }
-        context = args[0];
-        return line;
-    };
-
-    rebindAll(line, base, exclude('baseValue', 'bandwidth', 'align'));
+    rebindAll(line, base, exclude('glAPI', 'cached', 'baseValue', 'bandwidth', 'align'));
     return line;
 };

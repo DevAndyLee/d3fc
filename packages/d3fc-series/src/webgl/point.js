@@ -1,23 +1,21 @@
 import { symbol, symbolCircle } from 'd3-shape';
 import { rebindAll, exclude } from '@d3fc/d3fc-rebind';
-import xyBase from '../xyBase';
+import glBase from './glBase';
 import colors from '../colors';
 
-import helper from './helper/api';
 import glColor from './helper/glColor';
 
 export default () => {
-    let context = null;
-    const base = xyBase();
-    let glAPI = null;
+    const base = glBase();
 
     let size = 70;
     let type = symbolCircle;
     let imagePromise = null;
 
     const point = (data, helperAPI) => {
-        base();
-        glAPI = helperAPI || helper(context);
+        base(data, helperAPI);
+        const context = base.context();
+        const glAPI = base.glAPI();
 
         const scales = glAPI.applyScales(base.xScale(), base.yScale());
 
@@ -42,6 +40,11 @@ export default () => {
     };
 
     const getProjectedData = (data, scales) => {
+        const cachedProjected = base.cached();
+        if (cachedProjected) {
+            return cachedProjected;
+        }
+
         const filteredData = data.filter(base.defined());
 
         const crossFn = base.crossValue();
@@ -66,15 +69,8 @@ export default () => {
             });
         }
 
+        base.cached(result);
         return result;
-    };
-
-    point.context = (...args) => {
-        if (!args.length) {
-            return context;
-        }
-        context = args[0];
-        return point;
     };
 
     point.size = (...args) => {
@@ -113,7 +109,7 @@ export default () => {
         return point;
     };
 
-    rebindAll(point, base, exclude('baseValue', 'bandwidth', 'align'));
+    rebindAll(point, base, exclude('glAPI', 'cached', 'baseValue', 'bandwidth', 'align'));
     return point;
 };
 

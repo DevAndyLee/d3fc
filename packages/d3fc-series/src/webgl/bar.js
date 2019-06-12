@@ -1,20 +1,17 @@
-import { rebindAll } from '@d3fc/d3fc-rebind';
+import { rebindAll, exclude } from '@d3fc/d3fc-rebind';
 
-import xyBase from '../xyBase';
+import glBase from './glBase';
 import colors from '../colors';
-import helper from './helper/api';
 import glColor from './helper/glColor';
 import alignOffset from '../alignOffset';
 
 export default () => {
-    let context = null;
-    const base = xyBase();
-    let glAPI = null;
-    let cachedProjected = null;
+    const base = glBase();
 
     const bar = (data, helperAPI) => {
-        base();
-        glAPI = helperAPI || helper(context);
+        base(data, helperAPI);
+        const context = base.context();
+        const glAPI = base.glAPI();
 
         const scales = glAPI.applyScales(base.xScale(), base.yScale());
 
@@ -38,7 +35,8 @@ export default () => {
 
     const getProjectedData = (data, withLines, scales) => {
         const pixel = scales.pixel;
-        if (cachedProjected && cachedProjected.pixel.x === pixel.x && cachedProjected.pixel.y === pixel.y) {
+        const cachedProjected = base.cached();
+        if (cachedProjected && cachedProjected.pixel.x === pixel.x) {
             return cachedProjected;
         }
 
@@ -113,18 +111,11 @@ export default () => {
             }
         });
 
-        cachedProjected = {triangles, lines, pixel};
-        return cachedProjected;
+        const projectedData = {triangles, lines, pixel};
+        base.cached(projectedData);
+        return projectedData;
     };
 
-    bar.context = (...args) => {
-        if (!args.length) {
-            return context;
-        }
-        context = args[0];
-        return bar;
-    };
-
-    rebindAll(bar, base);
+    rebindAll(bar, base, exclude('glAPI', 'cached'));
     return bar;
 };

@@ -19,24 +19,15 @@ const generateData = () => {
     let lastSeries = null;
     data = colors.map((_, colorIndex) => {
         const asLines = shapeType === 'Line';
-        const floatArray = (usingWebGL && asLines);
-        const series = floatArray ? new Float32Array(numPerSeries * 2) : [];
-        let index = 0;
+        const series = [];
         let date = new Date(startDate);
         for (let n = 0; n < numPerSeries; n++) {
             const b = (lastSeries && !asLines) ? lastSeries[n].y : colorIndex * 100;
-            const item = {
+            series.push({
                 x: date,
                 y: b + 10 + Math.random() * 80,
                 b
-            };
-
-            if (floatArray) {
-                series[index++] = item.x;
-                series[index++] = item.y;
-            } else {
-                series.push(item);
-            }
+            });
 
             const newDate = new Date(date);
             newDate.setHours(newDate.getHours() + 1);
@@ -58,6 +49,7 @@ const createSeries = (asWebGL) => {
         const series = seriesType()
             .mainValue(d => d.y)
             .crossValue(d => d.x)
+            .cacheEnabled(true)
             .decorate(context => {
                 const color = d3.color(c);
                 if (shapeType == 'Line') {
@@ -141,8 +133,11 @@ let times = [];
 let i = 0;
 
 const showFPS = (t) => {
+    const firstTime = lastTime === 0;
     const dt = t - lastTime;
     lastTime = t;
+    if (firstTime) return;
+
     times.push(dt);
     i++;
     if (times.length > 100) times.splice(0, 1);
@@ -179,11 +174,15 @@ const animateFrame = (t) => {
     }
 };
 
+let sliderTimeout = null;
 const pointSlider = window.slider().max(2000000).value(numPoints).on('change', value => {
-    numPoints = value;
-    generateData();
-
-    requestRender();
+    if (sliderTimeout) clearTimeout(sliderTimeout);
+    sliderTimeout = setTimeout(() => {
+        numPoints = value;
+        reset();
+    
+        requestRender();
+    }, 250);
 });
 d3.select('#slider').call(pointSlider);
 
@@ -204,17 +203,17 @@ const start = () => {
     requestAnimationFrame(animateFrame);
 };
 
-const restart = asWebGL => {
-    const reset = () => {
-        usingWebGL = asWebGL;
-        times= [];
-        generateData();
-        d3.select('#content').html('');
-        chart = createChart(asWebGL);
-    };
+const reset = () => {
+    times= [];
+    generateData();
+    d3.select('#content').html('');
+    chart = createChart(usingWebGL);
+};
 
+const restart = asWebGL => {
     if (running) {
         stop().then(() => {
+            usingWebGL = asWebGL;
             reset();
             start();
         });
