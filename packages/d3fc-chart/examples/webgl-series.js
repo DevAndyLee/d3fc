@@ -14,18 +14,20 @@ const yScale = d3.scaleLinear();
 const xCopy = xScale.copy();
 const startDate = new Date('2000-01-01T12:00:00Z');
 
+let stackData = false;
+
 const generateData = () => {
     numPerSeries = Math.floor(numPoints / colors.length);
     let lastSeries = null;
     data = colors.map((_, colorIndex) => {
-        const asLines = shapeType === 'Line';
         const series = [];
         let date = new Date(startDate);
         for (let n = 0; n < numPerSeries; n++) {
-            const b = (lastSeries && !asLines) ? lastSeries[n].y : colorIndex * 100;
+            const lastSeriesY = lastSeries ? lastSeries[n].y : 0;
+            const b = stackData ? lastSeriesY : (colorIndex * 100 + 50);
             series.push({
                 x: date,
-                y: b + 10 + Math.random() * 80,
+                y: colorIndex * 100 + 10 + Math.random() * 80,
                 b
             });
 
@@ -49,7 +51,6 @@ const createSeries = (asWebGL) => {
         const series = seriesType()
             .mainValue(d => d.y)
             .crossValue(d => d.x)
-            .cacheEnabled(true)
             .decorate(context => {
                 const color = d3.color(c);
                 if (shapeType == 'Line') {
@@ -65,6 +66,7 @@ const createSeries = (asWebGL) => {
         if (shapeType != 'Line') {
             series.baseValue(d => d.b);
         }
+        if (series.cacheEnabled) series.cacheEnabled(true);
         return series;
     });
 
@@ -111,13 +113,25 @@ let chart = createChart(true);
 
 d3.select('#seriesCanvas').on('click', () => restart(!d3.event.target.checked));
 
-d3.select('#shapesLine').on('click', () => {
-    shapeType = 'Line';
+const clickType = typeName => () => {
+    shapeType = typeName;
+    restart(usingWebGL);
+    d3.select('#stackOption').style('visibility', typeName === 'Line' ? 'hidden' : '');
+    d3.select('#borderOption').style('visibility', typeName === 'Line' ? 'hidden' : '');
+};
+
+d3.select('#shapesLine').on('click', clickType('Line'));
+d3.select('#shapesBar').on('click', clickType('Bar'));
+d3.select('#shapesArea').on('click', clickType('Area'));
+
+d3.select('#stackData').on('click', () => {
+    stackData = d3.event.target.checked;
     restart(usingWebGL);
 });
-d3.select('#shapesBar').on('click', () => {
-    shapeType = 'Bar';
-    restart(usingWebGL);
+
+d3.select('#withBorders').on('click', () => {
+    showBorders = d3.event.target.checked;
+    requestRender();
 });
 
 d3.select('#showFPS').on('click', () => {

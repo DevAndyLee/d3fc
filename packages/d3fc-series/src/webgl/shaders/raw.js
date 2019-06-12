@@ -30,6 +30,8 @@ const fsSource = `
 // gl.TRIANGLES
 // gl.TRIANGLE_STRIP
 // gl.TRIANGLE_FAN
+// gl.LINES
+// gl.LINES_STRIP
 export default (gl) => {
     const base = baseShader(gl, vsSource, fsSource);
 

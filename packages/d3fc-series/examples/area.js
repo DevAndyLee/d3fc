@@ -4,17 +4,17 @@ var container = d3.select('#area-svg');
 
 var dataGenerator = fc.randomGeometricBrownianMotion()
   .steps(50);
-var data = dataGenerator(10);
+var data = dataGenerator(10).map(d => d - 10);
 
 var xScale = d3.scaleLinear()
     .domain([0, data.length])
     .range([0, width]);
 
 var yScale = d3.scaleLinear()
-    .domain(fc.extentLinear()(data))
+    .domain(fc.extentLinear().include([-1, 2])(data))
     .range([height, 0]);
 
-var svgLine = fc.seriesSvgArea()
+var svgArea = fc.seriesSvgArea()
     .xScale(xScale)
     .yScale(yScale)
     .defined((_, i) => i % 20 !== 0)
@@ -23,18 +23,32 @@ var svgLine = fc.seriesSvgArea()
 
 container.append('g')
     .datum(data)
-    .call(svgLine);
+    .call(svgArea);
 
 var canvas = d3.select('#area-canvas').node();
 canvas.width = width;
 canvas.height = height;
 var ctx = canvas.getContext('2d');
 
-var canvasLine = fc.seriesCanvasArea()
+var canvasArea = fc.seriesCanvasArea()
     .xScale(xScale)
     .yScale(yScale)
     .defined((_, i) => i % 20 !== 0)
     .context(ctx)
     .crossValue(function(_, i) { return i; })
     .mainValue(function(d) { return d; });
-canvasLine(data);
+canvasArea(data);
+
+var webgl = d3.select('#area-webgl').node();
+webgl.width = width;
+webgl.height = height;
+var glctx = webgl.getContext('webgl');
+
+var webglArea = fc.seriesWebglArea()
+    .xScale(xScale)
+    .yScale(yScale)
+    .defined((_, i) => i % 20 !== 0)
+    .context(glctx)
+    .crossValue(function(_, i) { return i; })
+    .mainValue(function(d) { return d; });
+webglArea(data);

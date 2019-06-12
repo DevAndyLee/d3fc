@@ -36,7 +36,7 @@ export default () => {
     const getProjectedData = (data, withLines, scales) => {
         const pixel = scales.pixel;
         const cachedProjected = base.cached();
-        if (cachedProjected && cachedProjected.pixel.x === pixel.x) {
+        if (cachedProjected && cachedProjected.pixel.x === pixel.x && (!withLines || cachedProjected.lines)) {
             return cachedProjected;
         }
 
