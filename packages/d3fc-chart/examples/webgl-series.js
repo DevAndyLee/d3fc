@@ -16,7 +16,7 @@ const startDate = new Date('2000-01-01T12:00:00Z');
 
 let stackData = false;
 
-const generateData = () => {
+const generateData = (sameSize = false) => {
     numPerSeries = Math.floor(numPoints / colors.length);
     let lastSeries = null;
     data = colors.map((_, colorIndex) => {
@@ -35,11 +35,11 @@ const generateData = () => {
             newDate.setHours(newDate.getHours() + 1);
             date = newDate;
         }
-        xScale.domain([startDate, date]);
+        if (!sameSize) xScale.domain([startDate, date]);
         lastSeries = series;
         return series;
-    })
-    xCopy.domain(xScale.domain());
+    });
+    if (!sameSize) xCopy.domain(xScale.domain());
 };
 generateData();
 
@@ -53,7 +53,7 @@ const createSeries = (asWebGL) => {
             .crossValue(d => d.x)
             .decorate(context => {
                 const color = d3.color(c);
-                if (shapeType == 'Line') {
+                if (shapeType === 'Line') {
                     context.strokeStyle = color + '';
                 } else {
                     if (showBorders) {
@@ -63,7 +63,7 @@ const createSeries = (asWebGL) => {
                     context.fillStyle = color + '';
                 }
             });
-        if (shapeType != 'Line') {
+        if (shapeType !== 'Line') {
             series.baseValue(d => d.b);
         }
         if (series.cacheEnabled) series.cacheEnabled(true);
@@ -111,11 +111,15 @@ const createChart = (asWebGL) => {
 };
 let chart = createChart(true);
 
-d3.select('#seriesCanvas').on('click', () => restart(!d3.event.target.checked));
+d3.select('#seriesCanvas').on('click', () => {
+    d3.select('#content').html('');
+    usingWebGL = !d3.event.target.checked;
+    restart();
+});
 
 const clickType = typeName => () => {
     shapeType = typeName;
-    restart(usingWebGL);
+    restart();
     d3.select('#stackOption').style('visibility', typeName === 'Line' ? 'hidden' : '');
     d3.select('#borderOption').style('visibility', typeName === 'Line' ? 'hidden' : '');
 };
@@ -126,7 +130,8 @@ d3.select('#shapesArea').on('click', clickType('Area'));
 
 d3.select('#stackData').on('click', () => {
     stackData = d3.event.target.checked;
-    restart(usingWebGL);
+    generateData(true);
+    restart();
 });
 
 d3.select('#withBorders').on('click', () => {
@@ -159,7 +164,7 @@ const showFPS = (t) => {
         i = 0;
         const avg = times.reduce((s, t) => s + t, 0) / times.length;
         const fpsValue = 1000 / avg;
-        const fpsText = fpsValue > 10 ? Math.floor(fpsValue): Math.floor(fpsValue * 10) / 10;
+        const fpsText = fpsValue > 10 ? Math.floor(fpsValue) : Math.floor(fpsValue * 10) / 10;
         d3.select('#fps').text(`fps: ${fpsText}`);
     }
 };
@@ -190,11 +195,14 @@ const animateFrame = (t) => {
 
 let sliderTimeout = null;
 const pointSlider = window.slider().max(2000000).value(numPoints).on('change', value => {
+    d3.select('#content').html('');
     if (sliderTimeout) clearTimeout(sliderTimeout);
     sliderTimeout = setTimeout(() => {
         numPoints = value;
+
+        generateData();
         reset();
-    
+
         requestRender();
     }, 250);
 });
@@ -218,16 +226,13 @@ const start = () => {
 };
 
 const reset = () => {
-    times= [];
-    generateData();
-    d3.select('#content').html('');
+    times = [];
     chart = createChart(usingWebGL);
 };
 
-const restart = asWebGL => {
+const restart = () => {
     if (running) {
         stop().then(() => {
-            usingWebGL = asWebGL;
             reset();
             start();
         });
