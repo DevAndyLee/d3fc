@@ -199,3 +199,43 @@ var groupedCanvasBarHorizontal = fc.autoBandwidth(fc.seriesCanvasGrouped(fc.seri
     });
 
 groupedCanvasBarHorizontal(series);
+
+var webgl = d3.select('#grouped-webgl').node();
+webgl.width = width;
+webgl.height = height;
+var glctx = webgl.getContext('webgl');
+
+var groupedWebglSeries = fc.seriesWebglBar();
+
+// create the grouped series
+var groupedWebglBar = fc.autoBandwidth(fc.seriesWebglGrouped(groupedWebglSeries))
+    .xScale(x)
+    .yScale(y)
+    .align('left')
+    .crossValue(function(d) { return d[0]; })
+    .mainValue(function(d) { return d[1]; })
+    .context(glctx)
+    .decorate(function(ctx, data, index) {
+        ctx.fillStyle = color(index);
+    });
+
+groupedWebglBar(series);
+
+var webglHorizontal = d3.select('#grouped-webgl-horizontal').node();
+webglHorizontal.width = width;
+webglHorizontal.height = height;
+
+// create the horizontal grouped series
+var groupedWebglBarHorizontal = fc.autoBandwidth(fc.seriesWebglGrouped(fc.seriesWebglBar()))
+    .orient('horizontal')
+    .xScale(xHorizontal)
+    .yScale(yHorizontal)
+    .align('left')
+    .crossValue(function(d) { return d[0]; })
+    .mainValue(function(d) { return d[1]; })
+    .context(webglHorizontal.getContext('webgl'))
+    .decorate(function(ctx, data, index) {
+        ctx.fillStyle = color(index);
+    });
+
+groupedWebglBarHorizontal(series);

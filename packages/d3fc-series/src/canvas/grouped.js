@@ -11,13 +11,14 @@ export default function(series) {
 
             // create a composite scale that applies the required offset
             const isVertical = series.orient() !== 'horizontal';
+            const baseScale = isVertical ? base.xScale() : base.yScale();
             const compositeScale = (d, i) => {
                 const offset = base.offsetScaleForDatum(data, d, i);
-                const baseScale = isVertical ? base.xScale() : base.yScale();
                 return baseScale(d) +
                   offset(index) +
                   offset.bandwidth() / 2;
             };
+            rebindAll(compositeScale, baseScale, exclude('clamp', 'copy'));
 
             if (isVertical) {
                 series.xScale(compositeScale);

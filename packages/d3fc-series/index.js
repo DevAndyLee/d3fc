@@ -32,6 +32,7 @@ export { default as seriesWebglMulti } from './src/canvas/multi';
 
 export { default as seriesSvgGrouped } from './src/svg/grouped';
 export { default as seriesCanvasGrouped } from './src/canvas/grouped';
+export { default as seriesWebglGrouped } from './src/canvas/grouped';
 
 export { default as seriesSvgRepeat } from './src/svg/repeat';
 export { default as seriesCanvasRepeat } from './src/canvas/repeat';

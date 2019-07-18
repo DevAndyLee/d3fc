@@ -92,11 +92,14 @@ export default (gl) => {
             };
         } else {
             const screenRange = range.map(r => 2 * r / screenSize - 1);
+            const factor = (screenRange[1] - screenRange[0]) / (range[1] - range[0]);
+            const scaleFn = d => (scale(d) - range[0]) * factor + screenRange[0];
+
             return {
                 pixelSize: Math.abs(2 / screenSize),
                 offset: invert ? 1 : -1,
                 scaleFactor: invertConst * 2,
-                scale: scale.copy().range(screenRange)
+                scale: scaleFn
             };
         }
     };
